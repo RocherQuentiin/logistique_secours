@@ -10,9 +10,10 @@
 
         <nav class="space-x-4">
             <a href="/" class="text-white/90 hover:text-white">Accueil</a>
-            <a href="#" class="text-white/90 hover:text-white">Produits</a>
-            <a href="#" class="text-white/90 hover:text-white">Batches</a>
             @auth
+                <a href="{{ route('products.index') }}" class="text-white/90 hover:text-white">Produits</a>
+                <a href="{{ route('locations.index') }}" class="text-white/90 hover:text-white">Lieux</a>
+                <a href="{{ route('batches.index') }}" class="text-white/90 hover:text-white">Lots</a>
                 @if(in_array(auth()->user()->role, ['admin','dev']))
                     <a href="{{ route('users.index') }}" class="text-white/90 hover:text-white">Utilisateurs</a>
                 @endif

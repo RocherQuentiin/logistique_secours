@@ -1,0 +1,40 @@
+/* Fallback utilities if Tailwind build is missing */
+:root {
+  --avss78-primary: #2e3d84;
+  --avss78-accent: #eee234;
+  --avss78-danger: #e5293f;
+  --avss78-dark: #0c0c10;
+  --avss78-muted: #909063
+}
+
+.bg-avss78-primary {
+  background-color: var(--avss78-primary) !important
+}
+
+.bg-avss78-accent {
+  background-color: var(--avss78-accent) !important
+}
+
+.text-avss78-primary {
+  color: var(--avss78-primary) !important
+}
+
+.text-avss78-dark {
+  color: var(--avss78-dark) !important
+}
+
+.btn {
+  display: inline-block;
+  padding: .375rem .75rem;
+  border-radius: .375rem
+}
+
+.btn-primary {
+  background-color: var(--avss78-accent);
+  color: #111
+}
+
+.btn-danger {
+  background-color: var(--avss78-danger);
+  color: #fff
+}

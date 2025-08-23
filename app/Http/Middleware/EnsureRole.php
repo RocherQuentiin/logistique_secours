@@ -16,7 +16,11 @@ class EnsureRole
     {
         $user = $request->user();
         if (! $user) {
-            return response()->json(['message' => 'Unauthenticated'], 401);
+            // For API requests, return JSON 401; for web, redirect to login
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json(['message' => 'Unauthenticated'], 401);
+            }
+            return redirect()->guest(route('login'));
         }
 
         $rank = ['user' => 1, 'admin' => 2, 'dev' => 3];
@@ -24,7 +28,10 @@ class EnsureRole
         $need = $rank[$required] ?? 99;
 
         if ($have < $need) {
-            return response()->json(['message' => 'Forbidden'], 403);
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json(['message' => 'Forbidden'], 403);
+            }
+            return redirect('/')->withErrors('Accès refusé.');
         }
 
         return $next($request);

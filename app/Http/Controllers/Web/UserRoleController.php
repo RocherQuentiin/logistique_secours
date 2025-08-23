@@ -57,7 +57,7 @@ class UserRoleController
         $editorRank = $rank[$editor->role] ?? 0;
         $targetRank = $rank[$data['role']] ?? 99;
         if ($targetRank > $editorRank) {
-            return back()->withErrors(['role' => "Vous ne pouvez pas attribuer un rôle supérieur au vôtre."]); 
+            return back()->withErrors(['role' => "Vous ne pouvez pas attribuer un rôle supérieur au vôtre."]);
         }
 
         $user->role = $data['role'];
