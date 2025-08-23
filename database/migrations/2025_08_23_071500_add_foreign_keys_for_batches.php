@@ -12,6 +12,12 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Skip heavy information_schema checks on SQLite (tests use in-memory SQLite)
+        $driver = Schema::getConnection()->getDriverName();
+        if ($driver === 'sqlite') {
+            return;
+        }
+
         $database = env('DB_DATABASE');
 
         // stocks.batch_id -> batches.id
@@ -48,6 +54,11 @@ return new class extends Migration
      */
     public function down(): void
     {
+        $driver = Schema::getConnection()->getDriverName();
+        if ($driver === 'sqlite') {
+            return;
+        }
+
         $database = env('DB_DATABASE');
 
         if (Schema::hasTable('stocks') && Schema::hasColumn('stocks', 'batch_id')) {
