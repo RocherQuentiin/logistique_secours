@@ -9,9 +9,20 @@
         </div>
 
         <nav class="space-x-4">
-            <a href="#" class="text-white/90 hover:text-white">Accueil</a>
+            <a href="/" class="text-white/90 hover:text-white">Accueil</a>
             <a href="#" class="text-white/90 hover:text-white">Produits</a>
             <a href="#" class="text-white/90 hover:text-white">Batches</a>
+            @auth
+                @if(auth()->user()->role === 'dev')
+                    <a href="{{ route('users.index') }}" class="text-white/90 hover:text-white">Utilisateurs</a>
+                @endif
+                <form method="POST" action="{{ route('logout') }}" class="inline">
+                    @csrf
+                    <button class="text-white/90 hover:text-white">Se déconnecter</button>
+                </form>
+            @else
+                <a href="{{ route('login') }}" class="text-white/90 hover:text-white">Se connecter</a>
+            @endauth
         </nav>
     </div>
 </header>
