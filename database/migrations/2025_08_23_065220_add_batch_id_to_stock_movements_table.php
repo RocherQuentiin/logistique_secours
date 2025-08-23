@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('stock_movements', function (Blueprint $table) {
-            // add batch_id without FK constraint to avoid ordering issues; can add FK later
-            $table->unsignedBigInteger('batch_id')->nullable();
-        });
+        if (!Schema::hasColumn('stock_movements', 'batch_id')) {
+            Schema::table('stock_movements', function (Blueprint $table) {
+                // add batch_id without FK constraint to avoid ordering issues; can add FK later
+                $table->unsignedBigInteger('batch_id')->nullable();
+            });
+        }
     }
 
     /**
@@ -22,8 +24,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('stock_movements', function (Blueprint $table) {
-            $table->dropColumn('batch_id');
-        });
+        if (Schema::hasColumn('stock_movements', 'batch_id')) {
+            Schema::table('stock_movements', function (Blueprint $table) {
+                $table->dropColumn('batch_id');
+            });
+        }
     }
 };

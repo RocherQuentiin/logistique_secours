@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('stocks', function (Blueprint $table) {
-            // add batch_id as unsignedBigInteger nullable; add FK in a later migration if desired
-            $table->unsignedBigInteger('batch_id')->nullable()->after('location_id');
-        });
+        if (!Schema::hasColumn('stocks', 'batch_id')) {
+            Schema::table('stocks', function (Blueprint $table) {
+                // add batch_id as unsignedBigInteger nullable; add FK in a later migration if desired
+                $table->unsignedBigInteger('batch_id')->nullable()->after('location_id');
+            });
+        }
     }
 
     /**
@@ -22,8 +24,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('stocks', function (Blueprint $table) {
-            $table->dropColumn('batch_id');
-        });
+        if (Schema::hasColumn('stocks', 'batch_id')) {
+            Schema::table('stocks', function (Blueprint $table) {
+                $table->dropColumn('batch_id');
+            });
+        }
     }
 };
