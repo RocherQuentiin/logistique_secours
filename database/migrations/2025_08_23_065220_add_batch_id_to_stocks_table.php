@@ -14,7 +14,7 @@ return new class extends Migration
         if (!Schema::hasColumn('stocks', 'batch_id')) {
             Schema::table('stocks', function (Blueprint $table) {
                 // add batch_id as unsignedBigInteger nullable; add FK in a later migration if desired
-                $table->unsignedBigInteger('batch_id')->nullable()->after('location_id');
+                $table->unsignedBigInteger('batch_id')->nullable();
             });
         }
     }
