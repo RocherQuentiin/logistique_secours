@@ -12,9 +12,13 @@ class SendLowStockEmail implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct()
+    public int $productId;
+    public int $quantity;
+
+    public function __construct(int $productId, int $quantity)
     {
-    //
+        $this->productId = $productId;
+        $this->quantity = $quantity;
     }
 
     /**

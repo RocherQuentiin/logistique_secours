@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Batch extends Model
 {
+    use HasFactory;
+
     protected $fillable = ['product_id','name','location_id','quantity','expiry_date','meta'];
 
     protected $casts = [
