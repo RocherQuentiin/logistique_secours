@@ -1,3 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --avss78-primary: #2e3d84;
+  --avss78-accent: #eee234;
+  --avss78-danger: #e5293f;
+  --avss78-dark: #0c0c10;
+  --avss78-muted: #909063;
+  --avss78-brownish: #676157;
+}
+
+.brand-header {
+  background-color: var(--avss78-primary);
+  color: white;
+}
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
