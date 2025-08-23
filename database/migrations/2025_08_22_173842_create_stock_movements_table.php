@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('stock_movements', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('product_id')->nullable()->constrained()->nullOnDelete();
+            $table->integer('quantity');
+            $table->foreignId('location_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('batch_id')->nullable()->constrained('batches')->nullOnDelete();
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }
