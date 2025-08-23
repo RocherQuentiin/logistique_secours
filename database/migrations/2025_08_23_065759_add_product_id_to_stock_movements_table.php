@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('stock_movements', function (Blueprint $table) {
-            $table->foreignId('product_id')->nullable()->after('id')->constrained()->nullOnDelete();
-        });
+        if (!Schema::hasColumn('stock_movements', 'product_id')) {
+            Schema::table('stock_movements', function (Blueprint $table) {
+                $table->foreignId('product_id')->nullable()->after('id')->constrained()->nullOnDelete();
+            });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('stock_movements', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('product_id');
-        });
+        if (Schema::hasColumn('stock_movements', 'product_id')) {
+            Schema::table('stock_movements', function (Blueprint $table) {
+                $table->dropConstrainedForeignId('product_id');
+            });
+        }
     }
 };
