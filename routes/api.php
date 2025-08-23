@@ -17,7 +17,7 @@ Route::middleware(['auth:sanctum','ensure.role:admin'])->group(function () {
 	Route::delete('/batches/{id}', [BatchController::class, 'destroy']);
 });
 
-Route::middleware(['auth:sanctum','ensure.role:dev'])->group(function () {
+Route::middleware(['auth:sanctum','ensure.role:admin'])->group(function () {
 	Route::get('/users', [UserController::class, 'index']);
 	Route::put('/users/{id}/role', [UserController::class, 'updateRole']);
 });

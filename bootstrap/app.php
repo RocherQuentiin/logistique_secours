@@ -15,6 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'ensure.role' => \App\Http\Middleware\EnsureRole::class,
         ]);
+    // Require auth on all web routes by default
+    $middleware->appendToGroup('web', [\Illuminate\Auth\Middleware\Authenticate::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

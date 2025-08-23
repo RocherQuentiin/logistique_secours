@@ -13,7 +13,7 @@
             <a href="#" class="text-white/90 hover:text-white">Produits</a>
             <a href="#" class="text-white/90 hover:text-white">Batches</a>
             @auth
-                @if(auth()->user()->role === 'dev')
+                @if(in_array(auth()->user()->role, ['admin','dev']))
                     <a href="{{ route('users.index') }}" class="text-white/90 hover:text-white">Utilisateurs</a>
                 @endif
                 <form method="POST" action="{{ route('logout') }}" class="inline">
