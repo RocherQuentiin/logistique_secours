@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('stocks', function (Blueprint $table) {
-            $table->foreignId('batch_id')->nullable()->after('location_id')->constrained('batches')->nullOnDelete();
+            // add batch_id as unsignedBigInteger nullable; add FK in a later migration if desired
+            $table->unsignedBigInteger('batch_id')->nullable()->after('location_id');
         });
     }
 
@@ -22,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('stocks', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('batch_id');
+            $table->dropColumn('batch_id');
         });
     }
 };
