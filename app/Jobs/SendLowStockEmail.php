@@ -14,7 +14,7 @@ class SendLowStockEmail implements ShouldQueue
      */
     public function __construct()
     {
-        //
+    //
     }
 
     /**
@@ -22,6 +22,6 @@ class SendLowStockEmail implements ShouldQueue
      */
     public function handle(): void
     {
-        //
+    // Placeholder: implement email sending via Mailable or external service
     }
 }
