@@ -25,7 +25,7 @@
 <body class="min-h-screen">
     @include('partials.header')
 
-    <main class="container mx-auto px-4 py-8">
+    <main class="container">
         @if ($errors->any())
             <div class="mb-4 rounded border border-red-200 bg-red-50 text-red-800 px-4 py-3">
                 <div class="font-semibold mb-1">Des erreurs ont été détectées :</div>

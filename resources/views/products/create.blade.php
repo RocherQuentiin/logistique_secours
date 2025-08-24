@@ -1,16 +1,27 @@
 @extends('layouts.app')
 @section('title','Nouveau produit')
 @section('content')
-<h2 class="text-xl font-semibold mb-4">Nouveau produit</h2>
-<form method="POST" action="{{ route('products.store') }}" class="space-y-4 max-w-md">@csrf
-  <div>
-    <label class="label">Nom</label>
-    <input name="name" value="{{ old('name') }}" class="input" required>
+<div class="card p-5 max-w-xl">
+  <div class="form-toolbar">
+    <h2 class="text-xl font-semibold">Nouveau produit</h2>
+    <a href="{{ route('products.index') }}" class="btn btn-ghost" title="Retour">⬅️</a>
   </div>
-  <div>
-    <label class="label">Numéro de lot</label>
-    <input name="sku" value="{{ old('sku') }}" class="input" required>
-  </div>
-  <button class="btn btn-primary">Créer</button>
-</form>
+  <form method="POST" action="{{ route('products.store') }}" class="space-y-4">@csrf
+    <div>
+      <label class="label">Nom</label>
+      <input name="name" value="{{ old('name') }}" class="input" required>
+      <p class="form-help">Nom lisible pour identifier rapidement le produit.</p>
+    </div>
+    <div>
+      <label class="label">Numéro de lot</label>
+      <input name="sku" value="{{ old('sku') }}" class="input" required>
+      <p class="form-help">Référence interne (ex: LOT-2025-001).</p>
+    </div>
+    <div class="divider"></div>
+    <div class="flex items-center gap-2">
+      <button class="btn btn-primary">Créer</button>
+      <a href="{{ route('products.index') }}" class="btn btn-ghost">Annuler</a>
+    </div>
+  </form>
+</div>
 @endsection
