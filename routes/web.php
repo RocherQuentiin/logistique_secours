@@ -6,6 +6,7 @@ use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\ProductController;
 use App\Http\Controllers\Web\LocationController;
 use App\Http\Controllers\Web\BatchController;
+use App\Http\Controllers\Web\DashboardController;
 
 // Routes publiques (pas d'auth): login (on retire explicitement Authenticate pour éviter la boucle)
 Route::middleware(['web'])->group(function () {
@@ -19,7 +20,7 @@ Route::middleware(['web'])->group(function () {
 
 // Routes authentifiées par défaut
 Route::middleware(['web','auth'])->group(function () {
-    Route::get('/', function () { return view('home'); });
+    Route::get('/', [DashboardController::class, 'index']);
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     // Listes visibles à tous les connectés
