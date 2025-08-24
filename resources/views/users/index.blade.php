@@ -36,31 +36,31 @@
         @enderror
     </div>
 
-    <div class="overflow-x-auto card">
+    <div class="overflow-x-auto card p-4">
         <table class="data-table text-sm">
             <thead>
                 <tr>
-                    <th class="text-left px-4 py-2">#</th>
-                    <th class="text-left px-4 py-2">Nom</th>
-                    <th class="text-left px-4 py-2">Email</th>
-                    <th class="text-left px-4 py-2">Rôle</th>
-                    <th class="text-left px-4 py-2">Action</th>
+                    <th>#</th>
+                    <th>Nom</th>
+                    <th>Email</th>
+                    <th>Rôle</th>
+                    <th class="col-actions">Action</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($users as $u)
-                <tr class="border-t">
-                    <td class="px-4 py-2">{{ $u->id }}</td>
-                    <td class="px-4 py-2">{{ $u->name }}</td>
-                    <td class="px-4 py-2">{{ $u->email }}</td>
-                    <td class="px-4 py-2">
-                        <form action="{{ route('users.update', $u->id) }}" method="POST" class="flex items-center gap-2">
+                <tr>
+                    <td>{{ $u->id }}</td>
+                    <td>{{ $u->name }}</td>
+                    <td>{{ $u->email }}</td>
+                    <td>
+                        <form action="{{ route('users.update', $u->id) }}" method="POST" class="inline-flex items-center gap-2">
                             @csrf
                             @method('PUT')
                             @php($rank=['user'=>1,'admin'=>2,'dev'=>3])
                             @php($me=auth()->user())
                             @php($max=$rank[$me->role] ?? 1)
-                            <select name="role" class="border rounded px-2 py-1">
+                            <select name="role" class="select">
                                 <option value="user" @selected($u->role==='user')>user</option>
                                 @if($max >= 2)
                                     <option value="admin" @selected($u->role==='admin')>admin</option>
@@ -69,10 +69,10 @@
                                     <option value="dev" @selected($u->role==='dev')>dev</option>
                                 @endif
                             </select>
-                            <button class="bg-avss78-accent text-white px-3 py-1 rounded">Enregistrer</button>
+                            <button class="btn btn-primary">Enregistrer</button>
                         </form>
                     </td>
-                    <td class="px-4 py-2 text-gray-500">&nbsp;</td>
+                    <td class="text-gray-500">&nbsp;</td>
                 </tr>
                 @endforeach
             </tbody>

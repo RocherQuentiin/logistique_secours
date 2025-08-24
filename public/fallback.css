@@ -75,9 +75,11 @@ body { background: #f6f7fb; color: #111; transition: background-color .2s ease, 
 /* Cards & tables (minimal) */
 .card { background: #fff; border: 1px solid #eef0f4; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,.06) }
 .data-table { width:100%; border-collapse: separate; border-spacing:0 }
-.data-table thead th { background:#f7f8fb }
+.data-table thead th { background:#f7f8fb; text-align:center }
+.data-table th, .data-table td { padding: .75rem .75rem; text-align:center; vertical-align: middle }
 .data-table tbody tr { border-top:1px solid #eef0f4 }
 .data-table tbody tr:hover { background:#fafbff }
+.col-actions { text-align:center; white-space:nowrap }
 
 /* Dark theme via data-attribute (fallback) */
 html[data-theme="dark"] { color-scheme: dark }
