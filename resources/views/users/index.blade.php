@@ -10,14 +10,14 @@
         <div class="rounded bg-green-100 text-green-800 px-4 py-2">{{ session('status') }}</div>
     @endif
 
-    <div class="bg-white rounded shadow p-4">
+    <div class="card p-4">
         <h3 class="font-semibold mb-2">Créer un utilisateur</h3>
         <form method="POST" action="{{ route('users.store') }}" class="grid md:grid-cols-5 gap-3">
             @csrf
-            <input class="border rounded px-2 py-1" type="text" name="name" placeholder="Nom" value="{{ old('name') }}" required />
-            <input class="border rounded px-2 py-1" type="email" name="email" placeholder="Email" value="{{ old('email') }}" required />
-            <input class="border rounded px-2 py-1" type="password" name="password" placeholder="Mot de passe (min 8)" required />
-            <select name="role" class="border rounded px-2 py-1">
+            <input class="input" type="text" name="name" placeholder="Nom" value="{{ old('name') }}" required />
+            <input class="input" type="email" name="email" placeholder="Email" value="{{ old('email') }}" required />
+            <input class="input" type="password" name="password" placeholder="Mot de passe (min 8)" required />
+            <select name="role" class="select">
                 @php($rank=['user'=>1,'admin'=>2,'dev'=>3])
                 @php($me=auth()->user())
                 @php($max=$rank[$me->role] ?? 1)
@@ -29,16 +29,16 @@
                     <option value="dev" @selected(old('role')==='dev')>dev</option>
                 @endif
             </select>
-            <button class="bg-avss78-accent text-white px-3 py-1 rounded">Créer</button>
+            <button class="btn btn-primary">Créer</button>
         </form>
         @error('role')
             <p class="text-red-600 text-sm mt-2">{{ $message }}</p>
         @enderror
     </div>
 
-    <div class="overflow-x-auto bg-white rounded shadow">
-        <table class="min-w-full text-sm">
-            <thead class="bg-gray-100">
+    <div class="overflow-x-auto card">
+        <table class="data-table text-sm">
+            <thead>
                 <tr>
                     <th class="text-left px-4 py-2">#</th>
                     <th class="text-left px-4 py-2">Nom</th>

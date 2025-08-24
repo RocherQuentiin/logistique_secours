@@ -8,7 +8,7 @@
             </div>
         </div>
 
-        <nav class="space-x-4">
+        <nav class="site-nav desktop-only space-x-2 right-actions">
             <a href="/" class="text-white/90 hover:text-white">Accueil</a>
             @auth
                 <a href="{{ route('products.index') }}" class="text-white/90 hover:text-white">Produits</a>
@@ -19,11 +19,33 @@
                 @endif
                 <form method="POST" action="{{ route('logout') }}" class="inline">
                     @csrf
-                    <button class="text-white/90 hover:text-white">Se déconnecter</button>
+                    <button class="btn btn-ghost">Se déconnecter</button>
                 </form>
             @else
-                <a href="{{ route('login') }}" class="text-white/90 hover:text-white">Se connecter</a>
+                <a href="{{ route('login') }}" class="btn btn-ghost">Se connecter</a>
             @endauth
         </nav>
+        <div class="mobile-menu">
+            <details>
+                <summary class="cursor-pointer">Menu</summary>
+                <div class="mt-2 flex flex-col gap-2">
+                    <a href="/" class="text-white/90 hover:text-white">Accueil</a>
+                    @auth
+                        <a href="{{ route('products.index') }}" class="text-white/90 hover:text-white">Produits</a>
+                        <a href="{{ route('locations.index') }}" class="text-white/90 hover:text-white">Lieux</a>
+                        <a href="{{ route('batches.index') }}" class="text-white/90 hover:text-white">Lots</a>
+                        @if(in_array(auth()->user()->role, ['admin','dev']))
+                            <a href="{{ route('users.index') }}" class="text-white/90 hover:text-white">Utilisateurs</a>
+                        @endif
+                        <form method="POST" action="{{ route('logout') }}" class="inline">
+                            @csrf
+                            <button class="btn btn-ghost">Se déconnecter</button>
+                        </form>
+                    @else
+                        <a href="{{ route('login') }}" class="btn btn-ghost">Se connecter</a>
+                    @endauth
+                </div>
+            </details>
+        </div>
     </div>
 </header>
