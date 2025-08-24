@@ -1,51 +1,59 @@
-<header class="bg-avss78-primary brand-header text-white shadow">
-    <div class="container mx-auto px-4 py-4 flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-md bg-avss78-accent flex items-center justify-center text-avss78-dark font-bold">AV</div>
+<header class="sticky-header glassbar text-white">
+    <div class="container mx-auto px-4 py-3 flex items-center justify-between gap-4">
+        <a href="/" class="brand">
+            <div class="brand-mark">AV</div>
             <div>
-                <h1 class="text-lg font-semibold">AVSS78 logistique</h1>
-                <p class="text-sm opacity-80">Gestion des stocks — interface de démonstration</p>
+                <div class="brand-title">AVSS78 logistique</div>
+                <div class="brand-sub">Gestion des stocks</div>
             </div>
-        </div>
+        </a>
 
-        <nav class="site-nav desktop-only space-x-2 right-actions">
-            <a href="/" class="text-white/90 hover:text-white">Accueil</a>
+        <nav class="desktop-only">
+            <div class="nav-pills">
+                <a href="/" class="nav-link {{ request()->is('/') ? 'active' : '' }}">Accueil</a>
+                @auth
+                    <a href="{{ route('products.index') }}" class="nav-link {{ request()->routeIs('products.*') ? 'active' : '' }}">Produits</a>
+                    <a href="{{ route('locations.index') }}" class="nav-link {{ request()->routeIs('locations.*') ? 'active' : '' }}">Lieux</a>
+                    <a href="{{ route('batches.index') }}" class="nav-link {{ request()->routeIs('batches.*') ? 'active' : '' }}">Lots</a>
+                    @if(in_array(auth()->user()->role, ['admin','dev']))
+                        <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">Utilisateurs</a>
+                    @endif
+                @endauth
+            </div>
+        </nav>
+
+        <div class="header-actions">
+            <button type="button" id="themeToggle" title="Thème" class="btn btn-ghost">🌓</button>
             @auth
-                <a href="{{ route('products.index') }}" class="text-white/90 hover:text-white">Produits</a>
-                <a href="{{ route('locations.index') }}" class="text-white/90 hover:text-white">Lieux</a>
-                <a href="{{ route('batches.index') }}" class="text-white/90 hover:text-white">Lots</a>
-                @if(in_array(auth()->user()->role, ['admin','dev']))
-                    <a href="{{ route('users.index') }}" class="text-white/90 hover:text-white">Utilisateurs</a>
-                @endif
                 <form method="POST" action="{{ route('logout') }}" class="inline">
                     @csrf
-                    <button class="btn btn-ghost">Se déconnecter</button>
+                    <button class="btn btn-ghost">Déconnexion</button>
                 </form>
             @else
-                <a href="{{ route('login') }}" class="btn btn-ghost">Se connecter</a>
+                <a href="{{ route('login') }}" class="btn btn-ghost">Connexion</a>
             @endauth
-        </nav>
-        <div class="mobile-menu">
-            <details>
-                <summary class="cursor-pointer">Menu</summary>
-                <div class="mt-2 flex flex-col gap-2">
-                    <a href="/" class="text-white/90 hover:text-white">Accueil</a>
-                    @auth
-                        <a href="{{ route('products.index') }}" class="text-white/90 hover:text-white">Produits</a>
-                        <a href="{{ route('locations.index') }}" class="text-white/90 hover:text-white">Lieux</a>
-                        <a href="{{ route('batches.index') }}" class="text-white/90 hover:text-white">Lots</a>
-                        @if(in_array(auth()->user()->role, ['admin','dev']))
-                            <a href="{{ route('users.index') }}" class="text-white/90 hover:text-white">Utilisateurs</a>
-                        @endif
-                        <form method="POST" action="{{ route('logout') }}" class="inline">
-                            @csrf
-                            <button class="btn btn-ghost">Se déconnecter</button>
-                        </form>
-                    @else
-                        <a href="{{ route('login') }}" class="btn btn-ghost">Se connecter</a>
-                    @endauth
-                </div>
-            </details>
+            <div class="mobile-menu">
+                <details>
+                    <summary class="btn btn-ghost">Menu</summary>
+                    <div class="card p-2 mt-2 min-w-48">
+                        <a href="/" class="nav-link {{ request()->is('/') ? 'active' : '' }}">Accueil</a>
+                        @auth
+                            <a href="{{ route('products.index') }}" class="nav-link {{ request()->routeIs('products.*') ? 'active' : '' }}">Produits</a>
+                            <a href="{{ route('locations.index') }}" class="nav-link {{ request()->routeIs('locations.*') ? 'active' : '' }}">Lieux</a>
+                            <a href="{{ route('batches.index') }}" class="nav-link {{ request()->routeIs('batches.*') ? 'active' : '' }}">Lots</a>
+                            @if(in_array(auth()->user()->role, ['admin','dev']))
+                                <a href="{{ route('users.index') }}" class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">Utilisateurs</a>
+                            @endif
+                            <form method="POST" action="{{ route('logout') }}" class="inline mt-2">
+                                @csrf
+                                <button class="btn btn-ghost w-full">Déconnexion</button>
+                            </form>
+                        @else
+                            <a href="{{ route('login') }}" class="btn btn-ghost w-full mt-2">Connexion</a>
+                        @endauth
+                    </div>
+                </details>
+            </div>
         </div>
     </div>
 </header>

@@ -22,7 +22,7 @@
         @vite('resources/js/app.js')
     @endif
 </head>
-<body class="bg-avss78-50 text-gray-900 min-h-screen">
+<body class="min-h-screen">
     @include('partials.header')
 
     <main class="container mx-auto px-4 py-8">
@@ -45,5 +45,16 @@
 
         @yield('content')
     </main>
+    <script>
+        // Fallback theme toggle (works even if Vite/module JS isn't loaded)
+        (function(){
+            if (window.__avssThemeHook) return; window.__avssThemeHook = true;
+            var root = document.documentElement; var key='theme';
+            function apply(t){ if(t==='dark'){ root.setAttribute('data-theme','dark'); } else { root.removeAttribute('data-theme'); } }
+            try { var saved = localStorage.getItem(key); if(saved){ apply(saved); } } catch(e){}
+            function wire(){ var btn = document.getElementById('themeToggle'); if(!btn) return; function setIcon(){ var isDark = root.getAttribute('data-theme')==='dark'; btn.textContent = isDark ? '🌙' : '☀️'; btn.setAttribute('aria-label', isDark ? 'Passer en thème clair' : 'Passer en thème sombre'); btn.title = isDark ? 'Thème sombre' : 'Thème clair'; } setIcon(); btn.addEventListener('click', function(){ var dark=root.getAttribute('data-theme')==='dark'; var next=dark?'light':'dark'; apply(next); try{localStorage.setItem(key,next)}catch(e){} setIcon(); }); }
+            if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', wire); } else { wire(); }
+        })();
+    </script>
 </body>
 </html>
