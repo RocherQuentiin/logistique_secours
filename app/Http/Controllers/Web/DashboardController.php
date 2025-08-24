@@ -18,6 +18,8 @@ class DashboardController extends Controller
     $productId = request()->integer('product_id');
     $allowed = [30, 60, 90, 180];
     if (!in_array($period, $allowed, true)) { $period = 60; }
+    // Default low stock threshold (per product total). Can be tuned later via config/env.
+    $lowThreshold = 10;
 
         if ($useMock) {
             $locations = Location::orderBy('name')->get(['id','name']);
@@ -60,13 +62,38 @@ class DashboardController extends Controller
                 $sampleTop = collect([[ 'label' => $pName, 'qty' => 500 ]]);
             }
 
+            // Mock alert lists
+            $mockExpired = collect([
+                ['product' => 'Masques FFP2', 'batch' => 'FFP2-2024-01', 'location' => 'Dépôt A', 'qty' => 40, 'expiry_date' => $today->copy()->subDays(10)->toDateString()],
+                ['product' => 'Gants nitrile', 'batch' => 'GN-2023-10', 'location' => 'Camion 1', 'qty' => 15, 'expiry_date' => $today->copy()->subDays(2)->toDateString()],
+            ]);
+            $mockExpiring = collect([
+                ['product' => 'Sérum phy 500ml', 'batch' => 'SP-500-0425', 'location' => 'Dépôt B', 'qty' => 20, 'expiry_date' => $today->copy()->addDays(14)->toDateString()],
+                ['product' => 'Bandages 10cm', 'batch' => 'BD10-0525', 'location' => 'Gymnase', 'qty' => 12, 'expiry_date' => $today->copy()->addDays(28)->toDateString()],
+            ]);
+            $mockLowStock = collect([
+                ['product_id' => 1, 'product_name' => 'Garrots', 'qty' => 6],
+                ['product_id' => 2, 'product_name' => 'Bandages 10cm', 'qty' => 9],
+            ]);
+
             return view('home', [
                 'kpis' => [
                     'Produits' => 42,
                     'Lots' => 128,
                     'Quantité totale' => 3875,
-                    'Péremptions ≤ 60j' => 9,
+                    'Péremptions ≤ ' . $period . 'j' => 9,
                 ],
+                'alerts' => [
+                    'expired' => 2,
+                    'expiring' => 9,
+                    'lowStock' => 3,
+                ],
+                'lists' => [
+                    'expired' => $mockExpired,
+                    'expiring' => $mockExpiring,
+                    'lowStock' => $mockLowStock,
+                ],
+                'lowThreshold' => $lowThreshold,
                 'byLocation' => $byLocation,
                 'topProducts' => $sampleTop,
                 'expirations' => $expirations,
@@ -90,6 +117,17 @@ class DashboardController extends Controller
         $until = Carbon::today()->addDays($period);
         $expiringSoon = (clone $base)->whereNotNull('expiry_date')
             ->whereBetween('expiry_date', [$today, $until])
+            ->count();
+        $expired = (clone $base)->whereNotNull('expiry_date')
+            ->where('expiry_date', '<', $today)
+            ->count();
+
+        // Low stock: number of products whose total quantity <= threshold (within current filters)
+        $lowStock = (clone $base)
+            ->selectRaw('product_id, SUM(quantity) as qty')
+            ->groupBy('product_id')
+            ->having('qty', '<=', $lowThreshold)
+            ->get()
             ->count();
 
         // Quantities by location
@@ -122,7 +160,7 @@ class DashboardController extends Controller
             ]);
 
         // Expirations by month (next 6 months)
-        $months = [];
+    $months = [];
         $cursor = $today->copy()->startOfMonth();
         $monthsCount = max(3, min(6, (int) ceil($period / 30)));
         for ($i = 0; $i < $monthsCount; $i++) {
@@ -146,15 +184,59 @@ class DashboardController extends Controller
             return redirect()->to('/?mock=1');
         }
 
-    $locations = Location::orderBy('name')->get(['id','name']);
-    $products = Product::orderBy('name')->get(['id','name']);
+        // Build alert lists
+        $expiredList = (clone $base)
+            ->whereNotNull('expiry_date')
+            ->where('expiry_date', '<', $today)
+            ->with(['product:id,name','location:id,name'])
+            ->orderBy('expiry_date')
+            ->limit(200)
+            ->get(['id','product_id','name','location_id','quantity','expiry_date']);
+
+        $expiringList = (clone $base)
+            ->whereNotNull('expiry_date')
+            ->whereBetween('expiry_date', [$today, $until])
+            ->with(['product:id,name','location:id,name'])
+            ->orderBy('expiry_date')
+            ->limit(200)
+            ->get(['id','product_id','name','location_id','quantity','expiry_date']);
+
+        $grouped = (clone $base)
+            ->selectRaw('product_id, SUM(quantity) as qty')
+            ->groupBy('product_id')
+            ->having('qty', '<=', $lowThreshold)
+            ->get();
+        $prodMap = Product::whereIn('id', $grouped->pluck('product_id')->all())
+            ->get(['id','name'])
+            ->keyBy('id');
+        $lowStockList = $grouped->map(function ($r) use ($prodMap) {
+            return [
+                'product_id' => $r->product_id,
+                'product_name' => $prodMap->get($r->product_id)->name ?? 'Non défini',
+                'qty' => (int) ($r->qty ?? 0),
+            ];
+        })->sortBy('qty')->values();
+
+        $locations = Location::orderBy('name')->get(['id','name']);
+        $products = Product::orderBy('name')->get(['id','name']);
         return view('home', [
             'kpis' => [
                 'Produits' => $productCount,
                 'Lots' => $batchCount,
                 'Quantité totale' => $totalQty,
-                'Péremptions ≤ 60j' => $expiringSoon,
+                'Péremptions ≤ ' . $period . 'j' => $expiringSoon,
             ],
+            'alerts' => [
+                'expired' => $expired,
+                'expiring' => $expiringSoon,
+                'lowStock' => $lowStock,
+            ],
+            'lists' => [
+                'expired' => $expiredList,
+                'expiring' => $expiringList,
+                'lowStock' => $lowStockList,
+            ],
+            'lowThreshold' => $lowThreshold,
             'byLocation' => $byLocation,
             'topProducts' => $topProducts,
             'expirations' => $expirations,

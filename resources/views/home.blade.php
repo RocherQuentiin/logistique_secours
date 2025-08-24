@@ -42,6 +42,27 @@
                 </div>
             </div>
 
+    <!-- Alertes -->
+    @if(!empty($alerts))
+    <div class="grid md:grid-cols-3 gap-4">
+        <button type="button" class="card p-4 border border-red-200 bg-red-50 dark:bg-red-950/30 text-left hover:shadow" data-modal-target="#modal-expired">
+            <div class="text-sm text-red-700 dark:text-red-300">Lots périmés</div>
+            <div class="text-2xl font-bold mt-1">{{ number_format($alerts['expired'] ?? 0, 0, ',', ' ') }}</div>
+            <div class="text-xs text-red-700/70 dark:text-red-300/70 mt-1">Cliquer pour voir le détail</div>
+        </button>
+        <button type="button" class="card p-4 border border-amber-200 bg-amber-50 dark:bg-amber-950/30 text-left hover:shadow" data-modal-target="#modal-expiring">
+            <div class="text-sm text-amber-800 dark:text-amber-300">Péremptions ≤ {{ $filters['period'] ?? 60 }}j</div>
+            <div class="text-2xl font-bold mt-1">{{ number_format($alerts['expiring'] ?? 0, 0, ',', ' ') }}</div>
+            <div class="text-xs text-amber-800/70 dark:text-amber-300/70 mt-1">Cliquer pour voir le détail</div>
+        </button>
+        <button type="button" class="card p-4 border border-orange-200 bg-orange-50 dark:bg-orange-950/30 text-left hover:shadow" data-modal-target="#modal-lowstock">
+            <div class="text-sm text-orange-800 dark:text-orange-300">Stocks bas (≤ {{ $lowThreshold ?? 10 }})</div>
+            <div class="text-2xl font-bold mt-1">{{ number_format($alerts['lowStock'] ?? 0, 0, ',', ' ') }}</div>
+            <div class="text-xs text-orange-800/70 dark:text-orange-300/70 mt-1">Cliquer pour voir le détail</div>
+        </button>
+    </div>
+    @endif
+
     <!-- KPIs -->
     <div class="grid md:grid-cols-4 gap-4">
         @foreach($kpis as $label => $val)
@@ -80,6 +101,26 @@
 </script>
 <script>
     (function(){
+        // Simple modal logic (no framework)
+        function qs(s,root){return (root||document).querySelector(s)}
+        function qsa(s,root){return Array.from((root||document).querySelectorAll(s))}
+        qsa('[data-modal-target]').forEach(btn=>{
+            btn.addEventListener('click',()=>{
+                const sel = btn.getAttribute('data-modal-target');
+                const el = qs(sel);
+                if (!el) return;
+                el.classList.remove('hidden');
+            });
+        });
+        qsa('.modal [data-close], .modal [data-modal-close]').forEach(btn=>{
+            btn.addEventListener('click',()=> btn.closest('.modal')?.classList.add('hidden'));
+        });
+        qsa('.modal').forEach(modal=>{
+            modal.addEventListener('click',(e)=>{
+                if (e.target === modal) modal.classList.add('hidden');
+            });
+        });
+
         const cssVar = (v)=> getComputedStyle(document.documentElement).getPropertyValue(v).trim() || undefined;
         const accent = cssVar('--avss78-accent') || '#eee234';
         const primary = cssVar('--avss78-primary') || '#2e3d84';
@@ -136,4 +177,124 @@
         if (btn) btn.addEventListener('click', ()=> setTimeout(()=>location.reload(), 50));
     })();
 </script>
+@php($lists = $lists ?? ['expired'=>[], 'expiring'=>[], 'lowStock'=>[]])
+<!-- Modals: expired -->
+<div id="modal-expired" class="modal fixed inset-0 bg-black/40 backdrop-blur-sm hidden p-4 z-50">
+    <div class="mx-auto max-w-3xl w-full mt-10 card bg-white dark:bg-neutral-900 p-0 overflow-hidden">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-white/10">
+            <h4 class="font-semibold">Lots périmés</h4>
+            <button class="btn btn-ghost" data-close>Fermer</button>
+        </div>
+        <div class="p-4 overflow-auto max-h-[70vh]">
+            @if(($lists['expired'] ?? collect())->isEmpty())
+                <div class="text-sm text-gray-500">Aucun lot périmé selon les filtres.</div>
+            @else
+            <div class="data-table overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr>
+                            <th class="text-left p-2">Produit</th>
+                            <th class="text-left p-2">Lot</th>
+                            <th class="text-left p-2">Lieu</th>
+                            <th class="text-right p-2">Qté</th>
+                            <th class="text-left p-2">Date péremption</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($lists['expired'] as $b)
+                        <tr>
+                            <td class="p-2">{{ is_array($b)?($b['product'] ?? $b['product_name'] ?? '—') : ($b->product->name ?? '—') }}</td>
+                            <td class="p-2">{{ is_array($b)?($b['batch'] ?? '—') : ($b->name ?? '—') }}</td>
+                            <td class="p-2">{{ is_array($b)?($b['location'] ?? '—') : ($b->location->name ?? '—') }}</td>
+                            <td class="p-2 text-right">{{ number_format(is_array($b)?($b['qty'] ?? 0):($b->quantity ?? 0),0,',',' ') }}</td>
+                            <td class="p-2">{{ is_array($b)?($b['expiry_date'] ?? '—') : optional($b->expiry_date)->format('Y-m-d') }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            @endif
+        </div>
+    </div>
+    <div class="absolute inset-0" data-modal-close></div>
+    <style>
+        .modal .card{ box-shadow: 0 10px 30px rgba(0,0,0,.2) }
+    </style>
+</div>
+
+<!-- Modals: expiring -->
+<div id="modal-expiring" class="modal fixed inset-0 bg-black/40 backdrop-blur-sm hidden p-4 z-50">
+    <div class="mx-auto max-w-3xl w-full mt-10 card bg-white dark:bg-neutral-900 p-0 overflow-hidden">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-white/10">
+            <h4 class="font-semibold">Péremptions ≤ {{ $filters['period'] ?? 60 }}j</h4>
+            <button class="btn btn-ghost" data-close>Fermer</button>
+        </div>
+        <div class="p-4 overflow-auto max-h-[70vh]">
+            @if(($lists['expiring'] ?? collect())->isEmpty())
+                <div class="text-sm text-gray-500">Aucun lot concerné selon les filtres.</div>
+            @else
+            <div class="data-table overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr>
+                            <th class="text-left p-2">Produit</th>
+                            <th class="text-left p-2">Lot</th>
+                            <th class="text-left p-2">Lieu</th>
+                            <th class="text-right p-2">Qté</th>
+                            <th class="text-left p-2">Date péremption</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($lists['expiring'] as $b)
+                        <tr>
+                            <td class="p-2">{{ is_array($b)?($b['product'] ?? $b['product_name'] ?? '—') : ($b->product->name ?? '—') }}</td>
+                            <td class="p-2">{{ is_array($b)?($b['batch'] ?? '—') : ($b->name ?? '—') }}</td>
+                            <td class="p-2">{{ is_array($b)?($b['location'] ?? '—') : ($b->location->name ?? '—') }}</td>
+                            <td class="p-2 text-right">{{ number_format(is_array($b)?($b['qty'] ?? 0):($b->quantity ?? 0),0,',',' ') }}</td>
+                            <td class="p-2">{{ is_array($b)?($b['expiry_date'] ?? '—') : optional($b->expiry_date)->format('Y-m-d') }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            @endif
+        </div>
+    </div>
+    <div class="absolute inset-0" data-modal-close></div>
+</div>
+
+<!-- Modals: low stock -->
+<div id="modal-lowstock" class="modal fixed inset-0 bg-black/40 backdrop-blur-sm hidden p-4 z-50">
+    <div class="mx-auto max-w-2xl w-full mt-10 card bg-white dark:bg-neutral-900 p-0 overflow-hidden">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-white/10">
+            <h4 class="font-semibold">Stocks bas (≤ {{ $lowThreshold ?? 10 }})</h4>
+            <button class="btn btn-ghost" data-close>Fermer</button>
+        </div>
+        <div class="p-4 overflow-auto max-h-[70vh]">
+            @if(($lists['lowStock'] ?? collect())->isEmpty())
+                <div class="text-sm text-gray-500">Aucun produit sous le seuil selon les filtres.</div>
+            @else
+            <div class="data-table overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr>
+                            <th class="text-left p-2">Produit</th>
+                            <th class="text-right p-2">Qté totale</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($lists['lowStock'] as $r)
+                        <tr>
+                            <td class="p-2">{{ is_array($r)?($r['product_name'] ?? '—') : ($r['product_name'] ?? '—') }}</td>
+                            <td class="p-2 text-right">{{ number_format(is_array($r)?($r['qty'] ?? 0):($r['qty'] ?? 0),0,',',' ') }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            @endif
+        </div>
+    </div>
+    <div class="absolute inset-0" data-modal-close></div>
+</div>
 @endsection
