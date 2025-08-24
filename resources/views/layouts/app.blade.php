@@ -56,5 +56,33 @@
             if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', wire); } else { wire(); }
         })();
     </script>
+    <script>
+        // Fallback table search (works even if Vite/module JS isn't loaded)
+        (function(){
+            if (window.__avssTableSearchHook) return; window.__avssTableSearchHook = true;
+            function filterTable(el, q){
+                var table = el && el.tagName === 'TABLE' ? el : el && el.closest && el.closest('table');
+                var term = (q||'').toLowerCase();
+                var rows = table ? table.querySelectorAll('tbody tr') : null;
+                if(!rows) return;
+                rows.forEach(function(tr){
+                    var text = tr.textContent.toLowerCase();
+                    tr.style.display = (!term || text.indexOf(term) !== -1) ? '' : 'none';
+                });
+            }
+            function wire(){
+                document.querySelectorAll('input[data-table-search]').forEach(function(inp){
+                    var sel = inp.getAttribute('data-target');
+                    var target = sel ? document.querySelector(sel) : (inp.closest('.card') && inp.closest('.card').querySelector('table'));
+                    if(!target) return;
+                    var handler = function(){ filterTable(target, inp.value); };
+                    inp.addEventListener('input', handler);
+                    inp.addEventListener('keyup', handler);
+                    inp.addEventListener('search', handler);
+                });
+            }
+            if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', wire); } else { wire(); }
+        })();
+    </script>
 </body>
 </html>

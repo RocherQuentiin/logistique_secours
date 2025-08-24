@@ -1,15 +1,18 @@
 @extends('layouts.app')
 @section('title','Lots')
 @section('content')
-<div class="flex items-center justify-between mb-4">
+<div class="flex items-center justify-between gap-3 mb-4">
   <h2 class="text-xl font-semibold">Lots</h2>
-  @if(in_array(auth()->user()->role ?? 'user', ['admin','dev']))
-    <a class="btn btn-primary" href="{{ route('batches.create') }}">Nouveau</a>
-  @endif
+  <div class="flex items-center gap-2 ml-auto">
+    <input data-table-search data-target="#batchesTable" type="search" placeholder="Rechercher…" class="input w-48" />
+    @if(in_array(auth()->user()->role ?? 'user', ['admin','dev']))
+      <a class="btn btn-primary" href="{{ route('batches.create') }}">Nouveau</a>
+    @endif
+  </div>
 </div>
 @if(session('status'))<div class="bg-green-100 text-green-800 px-3 py-2 rounded mb-4">{{ session('status') }}</div>@endif
 <div class="card p-4 overflow-x-auto">
-  <table class="data-table text-sm" data-stack>
+  <table id="batchesTable" class="data-table text-sm" data-stack>
     <thead><tr><th>#</th><th>Produit</th><th>Nom lot</th><th>Lieu</th><th>Qté</th><th>Péremption</th><th class="col-actions">Actions</th></tr></thead>
     <tbody>
       @foreach($batches as $b)

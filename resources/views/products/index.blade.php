@@ -1,15 +1,18 @@
 @extends('layouts.app')
 @section('title','Produits')
 @section('content')
-<div class="flex items-center justify-between mb-4">
+<div class="flex items-center justify-between gap-3 mb-4">
   <h2 class="text-xl font-semibold">Produits</h2>
-  @if(in_array(auth()->user()->role ?? 'user', ['admin','dev']))
-    <a class="btn btn-primary" href="{{ route('products.create') }}">Nouveau</a>
-  @endif
+  <div class="flex items-center gap-2 ml-auto">
+    <input data-table-search data-target="#productsTable" type="search" placeholder="Rechercher…" class="input w-48" />
+    @if(in_array(auth()->user()->role ?? 'user', ['admin','dev']))
+      <a class="btn btn-primary" href="{{ route('products.create') }}">Nouveau</a>
+    @endif
+  </div>
   </div>
 @if(session('status'))<div class="bg-green-100 text-green-800 px-3 py-2 rounded mb-4">{{ session('status') }}</div>@endif
 <div class="card p-4 overflow-x-auto">
-  <table class="data-table text-sm" data-stack>
+  <table id="productsTable" class="data-table text-sm" data-stack>
   <thead><tr><th>#</th><th>Nom</th><th>Numéro de lot</th><th class="col-actions">Actions</th></tr></thead>
     <tbody>
       @foreach($products as $p)

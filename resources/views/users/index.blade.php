@@ -36,7 +36,11 @@
         @enderror
     </div>
 
-    <div class="overflow-x-auto card p-4">
+    <div class="flex items-center justify-between gap-3">
+        <h3 class="sr-only">Utilisateurs</h3>
+        <input data-table-search data-target="#usersTable" type="search" placeholder="Rechercher…" class="input w-48 ml-auto" />
+    </div>
+    <div class="overflow-x-auto card p-4 mt-3">
         <table class="data-table text-sm">
             <thead>
                 <tr>
@@ -47,7 +51,7 @@
                     <th class="col-actions">Action</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="usersTable">
                 @foreach ($users as $u)
                 <tr>
                     <td>{{ $u->id }}</td>
