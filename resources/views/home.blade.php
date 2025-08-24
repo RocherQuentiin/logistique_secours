@@ -4,12 +4,34 @@
 
 @section('content')
 <div class="space-y-6">
-        <div class="form-toolbar">
-            <h2 class="text-2xl font-semibold">Tableau de bord</h2>
-               <a href="{{ request('mock') ? url('/?mock=0') : url('/?mock=1') }}" class="btn btn-ghost" title="Basculer mock">
-                   {{ request('mock') ? 'Données réelles' : 'Demo (mock)' }}
-               </a>
-        </div>
+            <div class="form-toolbar">
+                <h2 class="text-2xl font-semibold">Tableau de bord</h2>
+                <div class="flex items-center gap-2">
+                    <form method="GET" action="/" class="flex items-center gap-2">
+                        <select name="location_id" class="select">
+                            <option value="">Tous les lieux</option>
+                            @if(!empty($locations))
+                                @foreach($locations as $loc)
+                                    <option value="{{ $loc->id }}" @selected(($filters['location_id'] ?? null) == $loc->id)>{{ $loc->name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                        <select name="period" class="select">
+                            @php($choices=[30=>'30j',60=>'60j',90=>'90j',180=>'180j'])
+                            @foreach($choices as $d=>$lbl)
+                                <option value="{{ $d }}" @selected(($filters['period'] ?? 60)==$d)>{{ $lbl }}</option>
+                            @endforeach
+                        </select>
+                        @if(request('mock'))
+                            <input type="hidden" name="mock" value="1" />
+                        @endif
+                        <button class="btn btn-primary">Appliquer</button>
+                    </form>
+                    <a href="{{ request('mock') ? url('/?mock=0') : url('/?mock=1') }}" class="btn btn-ghost" title="Basculer mock">
+                        {{ request('mock') ? 'Données réelles' : 'Demo (mock)' }}
+                    </a>
+                </div>
+            </div>
 
     <!-- KPIs -->
     <div class="grid md:grid-cols-4 gap-4">
