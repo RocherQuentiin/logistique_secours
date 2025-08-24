@@ -13,11 +13,18 @@
 @if(session('status'))<div class="bg-green-100 text-green-800 px-3 py-2 rounded mb-4">{{ session('status') }}</div>@endif
 <div class="card p-4 overflow-x-auto">
   <table id="batchesTable" class="data-table text-sm" data-stack>
-    <thead><tr><th>#</th><th>Produit</th><th>Nom lot</th><th>Lieu</th><th>Qté</th><th>Péremption</th><th class="col-actions">Actions</th></tr></thead>
+    <thead><tr>
+      @if((auth()->user()->role ?? 'user') === 'dev')
+        <th>#</th>
+      @endif
+      <th>Produit</th><th>Nom lot</th><th>Lieu</th><th>Qté</th><th>Péremption</th><th class="col-actions">Actions</th>
+    </tr></thead>
     <tbody>
       @foreach($batches as $b)
       <tr>
-        <td data-label="#">{{ $b->id }}</td>
+        @if((auth()->user()->role ?? 'user') === 'dev')
+          <td data-label="#">{{ $b->id }}</td>
+        @endif
         <td data-label="Produit">{{ $b->product?->name }}</td>
         <td data-label="Nom lot">{{ $b->name }}</td>
         <td data-label="Lieu">{{ $b->location?->name }}</td>

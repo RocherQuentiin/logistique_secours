@@ -13,11 +13,17 @@
 @if(session('status'))<div class="bg-green-100 text-green-800 px-3 py-2 rounded mb-4">{{ session('status') }}</div>@endif
 <div class="card p-4 overflow-x-auto">
   <table id="locationsTable" class="data-table text-sm" data-stack>
-    <thead><tr><th>#</th><th>Nom</th><th class="col-actions">Actions</th></tr></thead>
+    <thead><tr>
+      @if((auth()->user()->role ?? 'user') === 'dev')
+        <th>#</th>
+      @endif
+      <th>Nom</th><th class="col-actions">Actions</th></tr></thead>
     <tbody>
       @foreach($locations as $l)
       <tr>
-        <td data-label="#">{{ $l->id }}</td>
+        @if((auth()->user()->role ?? 'user') === 'dev')
+          <td data-label="#">{{ $l->id }}</td>
+        @endif
         <td data-label="Nom">{{ $l->name }}</td>
         <td class="col-actions" data-label="Actions">
           @if(in_array(auth()->user()->role ?? 'user', ['admin','dev']))

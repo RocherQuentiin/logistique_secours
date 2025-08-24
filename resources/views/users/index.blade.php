@@ -44,7 +44,9 @@
         <table class="data-table text-sm">
             <thead>
                 <tr>
-                    <th>#</th>
+                    @if((auth()->user()->role ?? 'user') === 'dev')
+                        <th>#</th>
+                    @endif
                     <th>Nom</th>
                     <th>Email</th>
                     <th>Rôle</th>
@@ -54,7 +56,9 @@
             <tbody id="usersTable">
                 @foreach ($users as $u)
                 <tr>
-                    <td>{{ $u->id }}</td>
+                    @if((auth()->user()->role ?? 'user') === 'dev')
+                        <td>{{ $u->id }}</td>
+                    @endif
                     <td>{{ $u->name }}</td>
                     <td>{{ $u->email }}</td>
                     <td>
