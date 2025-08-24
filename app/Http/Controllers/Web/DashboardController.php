@@ -15,11 +15,13 @@ class DashboardController extends Controller
         $useMock = request()->boolean('mock');
     $locationId = request()->integer('location_id');
     $period = (int) request()->get('period', 60);
+    $productId = request()->integer('product_id');
     $allowed = [30, 60, 90, 180];
     if (!in_array($period, $allowed, true)) { $period = 60; }
 
         if ($useMock) {
             $locations = Location::orderBy('name')->get(['id','name']);
+            $products = Product::orderBy('name')->get(['id','name']);
             $today = Carbon::today();
             $months = [];
             $cursor = $today->copy()->startOfMonth();
@@ -45,6 +47,19 @@ class DashboardController extends Controller
                 return [ 'label' => $m->isoFormat('MMM YYYY'), 'count' => $expCounts[$i] ?? 0 ];
             });
 
+            // Sample top products; if a specific product is selected, reduce to that entry
+            $sampleTop = collect([
+                ['label' => 'Gants nitrile', 'qty' => 950],
+                ['label' => 'Masques FFP2', 'qty' => 720],
+                ['label' => 'Sérum phy 500ml', 'qty' => 520],
+                ['label' => 'Bandages 10cm', 'qty' => 480],
+                ['label' => 'Garrots', 'qty' => 360],
+            ]);
+            if ($productId) {
+                $pName = optional($products->firstWhere('id', $productId))->name ?? 'Produit sélectionné';
+                $sampleTop = collect([[ 'label' => $pName, 'qty' => 500 ]]);
+            }
+
             return view('home', [
                 'kpis' => [
                     'Produits' => 42,
@@ -53,23 +68,19 @@ class DashboardController extends Controller
                     'Péremptions ≤ 60j' => 9,
                 ],
                 'byLocation' => $byLocation,
-                'topProducts' => collect([
-                    ['label' => 'Gants nitrile', 'qty' => 950],
-                    ['label' => 'Masques FFP2', 'qty' => 720],
-                    ['label' => 'Sérum phy 500ml', 'qty' => 520],
-                    ['label' => 'Bandages 10cm', 'qty' => 480],
-                    ['label' => 'Garrots', 'qty' => 360],
-                ]),
+                'topProducts' => $sampleTop,
                 'expirations' => $expirations,
                 'mock' => true,
-                'filters' => [ 'location_id' => $locationId, 'period' => $period ],
+                'filters' => [ 'location_id' => $locationId, 'period' => $period, 'product_id' => $productId ],
                 'locations' => $locations,
+                'products' => $products,
             ]);
         }
 
         // Real data with filters
         $base = Batch::query();
         if ($locationId) { $base->where('location_id', $locationId); }
+        if ($productId) { $base->where('product_id', $productId); }
         $productCount = (clone $base)->distinct('product_id')->count('product_id');
         if (!$locationId && $productCount === 0) { $productCount = Product::count(); }
         $batchCount = (clone $base)->count();
@@ -135,7 +146,8 @@ class DashboardController extends Controller
             return redirect()->to('/?mock=1');
         }
 
-        $locations = Location::orderBy('name')->get(['id','name']);
+    $locations = Location::orderBy('name')->get(['id','name']);
+    $products = Product::orderBy('name')->get(['id','name']);
         return view('home', [
             'kpis' => [
                 'Produits' => $productCount,
@@ -147,8 +159,9 @@ class DashboardController extends Controller
             'topProducts' => $topProducts,
             'expirations' => $expirations,
             'mock' => false,
-            'filters' => [ 'location_id' => $locationId, 'period' => $period ],
+            'filters' => [ 'location_id' => $locationId, 'period' => $period, 'product_id' => $productId ],
             'locations' => $locations,
+            'products' => $products,
         ]);
     }
 }
